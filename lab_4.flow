@@ -1,0 +1,24 @@
+import string;
+import ds/tree;
+
+my_pairs(arr : [int], i: int, m : int) -> [Pair<int, int>] {
+    tree = foldi(arr, makeTree(), \index, tree, x -> setTree(tree, x, arrayPush(getTreeArrayValue(tree, x), index)));
+    map(getTreeArrayValue(tree, m - arr[i]), \j -> Pair(i, j));
+}
+
+indsr(arr : [int], i: int, m : int) -> [Pair<int, int>] {
+    if(i >= length(arr)) []
+    else concat(my_pairs(arr, i, m), indsr(arr, i+1, m));
+}
+
+inds(arr : [int], m : int) -> [Pair<int, int>] {
+    indsr(arr, 0, m);
+}
+
+main() {
+    arr = [0, 1, 2, 3, 4, 5, 6, 6]; 
+    m = 6;
+
+	println("\n");
+	println(inds(arr, m));
+}

@@ -56,3 +56,32 @@ neko flow.n  .\lab_3.flow
 D:/flow9/lib/runtime.flow:232: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
 D:/flow9/lib/runtime.flow:462: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
 
+2020-09-27 18:48:31
+neko flow.n  .\lab_4.flow
+Error while parsing 'lab_4.flow': Invalid field access : index
+
+2020-09-27 18:48:53
+neko flow.n  .\lab_4.flow
+Error while parsing 'lab_4.flow': Invalid field access : index
+
+2020-09-27 18:49:23
+neko flow.n  .\lab_4.flow
+lab_4.flow:6: Expected ), not ;
+
+2020-09-27 18:49:41
+neko flow.n  .\lab_4.flow
+lab_4.flow:6: Expected ), not ;
+
+2020-09-27 18:49:51
+neko flow.n  .\lab_4.flow
+lab_4.flow:6: Expected ), not ;
+
+2020-09-27 18:50:14
+neko flow.n  .\lab_4.flow
+Error while parsing 'lab_4.flow': Invalid field access : index
+
+2020-09-27 18:51:34
+neko flow.n  .\lab_4.flow
+D:/flow9/lib/runtime.flow:232: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:462: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+
