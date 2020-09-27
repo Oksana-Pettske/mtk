@@ -1,0 +1,50 @@
+import string;
+
+fib_a(n: int) -> [int] {
+    if (n == 0) []
+    else if (n == 1) [0]
+    else if (n == 2) [0, 1]
+    else {
+        arr = fib_a(n - 1);
+        concat(arr, [arr[n - 2] + arr[n - 3]])
+    }
+}
+
+fib_b_tail(n: int, arr: [int]) -> [int] {
+    if (n <= 2) arr
+    else {
+        fib_b_tail(n - 1, concat(arr, [arr[length(arr) - 1] + arr[length(arr) - 2]]))
+    }
+}
+
+fib_b(n: int) {
+    fib_b_tail(n, [0, 1]);
+}
+
+fib_c_ref(n: int, arr: ref [int]) -> [int] {
+    if (n <= 2) ^arr
+    else {
+        fib_c_ref(n - 1, {
+            refArrayPush(arr, ^arr[length(^arr) - 1] + ^arr[length(^arr) - 2]);
+            arr
+        }
+        )
+    }
+}
+
+fib_c(n: int) {
+    fib_c_ref(n, ref [0, 1]);
+}
+
+main() {
+    n = 10;
+
+    a = fib_a(n);
+    b = fib_b(n);
+    c = fib_c(n);
+
+    println("\n");
+    println(a);
+    println(b);
+    println(c);
+}

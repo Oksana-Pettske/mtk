@@ -26,3 +26,33 @@ neko flow.n  .\lab_2.flow
 D:/flow9/lib/runtime.flow:232: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
 D:/flow9/lib/runtime.flow:462: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
 
+2020-09-27 17:21:12
+neko flow.n  .\lab_3.flow
+D:/flow9/lib/runtime.flow:232: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:462: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+
+2020-09-27 17:27:20
+neko flow.n  .\lab_3.flow
+D:/flow9/lib/runtime.flow:232: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:462: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+
+2020-09-27 17:28:40
+neko flow.n  .\lab_3.flow
+D:/flow9/lib/runtime.flow:232: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:462: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+
+2020-09-27 17:29:10
+neko flow.n  .\lab_3.flow
+D:/flow9/lib/runtime.flow:232: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:462: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+
+2020-09-27 17:36:12
+neko flow.n  .\lab_3.flow
+D:/flow9/lib/runtime.flow:232: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:462: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+
+2020-09-27 17:36:58
+neko flow.n  .\lab_3.flow
+D:/flow9/lib/runtime.flow:232: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:462: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+
