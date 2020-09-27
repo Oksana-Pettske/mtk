@@ -6,6 +6,7 @@ arr2s(arr: [int]) -> string {
 
 main() {
     arr = [1, 2, 3];
+    
     str = arr2s(arr);
 
     println("\n");

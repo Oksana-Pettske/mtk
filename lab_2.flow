@@ -1,0 +1,14 @@
+import string;
+
+arrSum(arr: [int]) -> int {
+    fold(arr, 0, \acc, x -> acc + x);
+}
+
+main() {
+    arr = [1, 2, 3];
+
+    sum = arrSum(arr);
+
+    println("\n");
+    println(sum);
+}
