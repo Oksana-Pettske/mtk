@@ -1,0 +1,41 @@
+import string;
+import lingo/pegcode/driver;
+
+Expr ::= IntConst, Mul, Add;
+IntConst: (value: int);
+Mul: (left: Expr, right: Expr);
+Add: (left: Expr, right: Expr);
+
+Print(expr: Expr) -> string {
+    switch (expr : Expr) {         
+        IntConst(c): i2s(c);
+        Mul(l, r): "(" + Print(l) + "*" + Print(r) + ")";
+        Add(l, r): "(" + Print(l) + "+" + Print(r) + ")";
+    }
+}
+
+Peg(str: string) -> Expr {
+    lng = "#include lab_5.lingo";
+    parsic(compilePegGrammar(lng), str, defaultPegActions);
+}
+
+Calc(expr: Expr) -> int {
+    switch (expr : Expr) {         
+        IntConst(c): c;
+        Mul(l, r): Calc(l) * Calc(r);
+        Add(l, r): Calc(l) + Calc(r);
+    }
+}
+
+main() {
+    expr = Mul(Add(IntConst(4), Mul(IntConst(2), IntConst(3))), IntConst(5)); // (4 + 2 * 3) * 5 = 50
+
+    expr_string = Print(expr);
+    //ast = Peg(expr_string);
+    result = Calc(expr);
+
+    println("\n");
+    println(expr);
+    println(expr_string);
+    println(result);
+}
