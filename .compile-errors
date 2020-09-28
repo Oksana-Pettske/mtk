@@ -358,3 +358,163 @@ neko flow.n  .\lab_2.flow
 D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
 D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
 
+2020-09-28 17:57:07
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 18:06:00
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 18:06:10
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 18:22:35
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:40:41
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:44:16
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:46:01
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "sum" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "sum" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:50:36
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:51:26
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:51:58
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "intC" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "intC" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:52:25
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:53:17
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:53:46
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:55:19
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:55:40
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:57:25
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:57:45
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "mul" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "mul" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:59:30
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "sum" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "sum" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 20:59:56
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+
+2020-09-28 21:01:17
+neko flow.n  .\lab_5.flow
+D:/flow9/lib/runtime.flow:211: Exception from eval: I could not make native Native.getClipboardToCB: Could not find native getClipboardToCB in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/runtime.flow:414: Exception from eval: I could not make native Native.getKeysList: Could not find native getKeysList in Native. Recompile flowrunner.hxml, flowflash.hxml
+D:/flow9/lib/ds/array.flow:467: Exception from eval: D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),
+unknown: Exception from eval: Exception caught in native implementation of Native.iteriUntil: Not a bool:/*D:/flow9/lib/ds/array.flow:467*/ (SyntaxError("D:/flow9/lib/ds/array.flow:467: I cannot compare "int" with IllegalStruct(). Use a cast (v : string -> IllegalStruct()),",
+D:/flow9/lib/ds/array.flow:467))
+

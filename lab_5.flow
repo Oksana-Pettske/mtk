@@ -15,7 +15,7 @@ Print(expr: Expr) -> string {
 }
 
 Peg(str: string) -> Expr {
-    lng = "#include lab_5.lingo";
+    lng = "#include lab_51.lingo";
     parsic(compilePegGrammar(lng), str, defaultPegActions);
 }
 
@@ -33,9 +33,12 @@ main() {
     expr_string = Print(expr);
     ast = Peg(expr_string);
     result = Calc(expr);
+    result_ast = Calc(ast);
 
     println("\n");
     println(expr);
     println(expr_string);
+    println(Print(ast));
     println(result);
+    println(result_ast);
 }
