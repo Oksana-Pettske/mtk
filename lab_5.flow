@@ -33,12 +33,12 @@ main() {
     expr_string = Print(expr);
     ast = Peg_prs(expr_string);
     result = Calc(expr);
-    //result_ast = Calc(ast);
+    result_ast = Calc(ast);
 
     println("\n");
     println(expr);
     println(expr_string);
-    //println(Print(ast));
+    println(Print(ast));
     println(result);
-    //println(result_ast);
+    println(result_ast);
 }

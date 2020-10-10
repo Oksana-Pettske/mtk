@@ -1,7 +1,11 @@
-expr = int: c {: c} | mul: m {: m} | add: a {: a};
+expr = int | mul | add;
 
-int = ('0' - '9') + $d {IntConst(s2i($d));}
-mul = "(" add: left "*" add: right ")" {Mul(: left, : right)} | add: only {: only};
-add = "(" int: left "+" int: right ")" {Add(: left, : right)} | int: only {: only}; 
+int = digit + $e { IntConst(s2i($e)) };
+mul = "(" ws expr:l ws "*" ws expr:r ws ")" { Mul(:l, :r) };
+add = "(" ws expr:l ws "+" ws expr:r ws ")" { Add(:l, :r) };
 
-ws = " "*;
+digit = '0'-'9';
+
+s = ws_+;
+ws = ws_*;
+ws_ = ' ' | '\\t' | '\\n' | '\\r';

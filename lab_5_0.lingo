@@ -1,0 +1,7 @@
+expr = int: c {: c} | mul: m {: m} | add: a {: a};
+
+int = ('0' - '9') + $d {IntConst(s2i($d));}
+mul = "(" add: left "*" add: right ")" {Mul(: left, : right)} | add: only {: only};
+add = "(" int: left "+" int: right ")" {Add(: left, : right)} | int: only {: only}; 
+
+ws = " "*;
