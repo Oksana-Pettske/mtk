@@ -20,7 +20,7 @@ expr2str(expr: Expr) -> string {
 }
 
 str2expr(str: string) -> Expr {
-    lng = "#include lab_5.lingo";
+    lng = "#include D:\flow9\sandbox\mtk\lab_5.lingo";
     parsic(compilePegGrammar(lng), str, defaultPegActions);
 }
 
@@ -34,28 +34,50 @@ Calc(expr: Expr) -> int {
 
 expr2rpn(expr: Expr) -> [ExprRPN] {
     switch (expr) {        
-        IntConst(c): [IntConstRPN];
+        IntConst(c): [IntConstRPN(c)];
         Mul(l, r): concat( concat( expr2rpn(l), expr2rpn(r) ), [MulRPN()] );
-        Sum(l, r): concat( concat( expr2rpn(l), expr2rpn(r) ), [SumRPN()] );
+        Add(l, r): concat( concat( expr2rpn(l), expr2rpn(r) ), [AddRPN()] );
     }
 }
+
+rpn2str(exprRPN: [ExprRPN]) -> string {
+    fold(exprRPN, "", \acc, e -> {
+        switch (e) {
+            IntConstRPN(c): acc + i2s(c) + " ";
+            MulRPN(): acc + "* ";
+            AddRPN(): acc + "+ ";
+        }
+    })
+}
+
+/*rpn2expr(exprRPN: [ExprRPN], i: int) -> Maybe<Expr> {
+    if ( (i < 0) && (i >= length(exprRPN)) ) {
+        None();        
+    } else {
+        switch(exprRPN[i]) {
+            IntConstRPN(c): Some(IntConst(c));
+            MulRPN(): {
+                //???
+            }
+            AddRPN(): {
+                //???
+            }
+        }
+    }
+}*/
 
 main() {
     expr = Mul(Add(IntConst(4), Mul(IntConst(2), IntConst(3))), IntConst(5)); // (4 + 2 * 3) * 5 = 50
     println(expr);
 
-    expr_string = expr2str(expr);
-    println(expr_string);
-
-    ast = str2expr(expr_string);
-    println(expr2str(ast));
-
-    result = Calc(expr);
-    println(result);
-   
-    result_ast = Calc(ast);
-    println(result_ast);
-
-    rpn = expr2rpn(ast);
+    rpn = expr2rpn(expr);
     println(rpn);
+
+    rpn_str = rpn2str(rpn);
+    println(rpn_str);
+
+    //rpn_expr = rpn2expr(rpn, 0);
+    //println(prn_expr);
+
+    quit(0);
 }
