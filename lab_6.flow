@@ -1,0 +1,61 @@
+import string;
+import lingo/pegcode/driver;
+
+Expr ::= IntConst, Mul, Add;
+IntConst: (value: int);
+Mul: (left: Expr, right: Expr);
+Add: (left: Expr, right: Expr);
+
+ExprRPN ::= IntConstRPN, MulRPN, AddRPN;
+IntConstRPN: (value: int);
+MulRPN: ();
+AddRPN: ();
+
+expr2str(expr: Expr) -> string {
+    switch (expr : Expr) {         
+        IntConst(c): i2s(c);
+        Mul(l, r): "(" + expr2str(l) + "*" + expr2str(r) + ")";
+        Add(l, r): "(" + expr2str(l) + "+" + expr2str(r) + ")";
+    }
+}
+
+str2expr(str: string) -> Expr {
+    lng = "#include lab_5.lingo";
+    parsic(compilePegGrammar(lng), str, defaultPegActions);
+}
+
+Calc(expr: Expr) -> int {
+    switch (expr : Expr) {         
+        IntConst(c): c;
+        Mul(l, r): Calc(l) * Calc(r);
+        Add(l, r): Calc(l) + Calc(r);
+    }
+}
+
+expr2rpn(expr: Expr) -> [ExprRPN] {
+    switch (expr) {        
+        IntConst(c): [IntConstRPN];
+        Mul(l, r): concat( concat( expr2rpn(l), expr2rpn(r) ), [MulRPN()] );
+        Sum(l, r): concat( concat( expr2rpn(l), expr2rpn(r) ), [SumRPN()] );
+    }
+}
+
+main() {
+    expr = Mul(Add(IntConst(4), Mul(IntConst(2), IntConst(3))), IntConst(5)); // (4 + 2 * 3) * 5 = 50
+    println(expr);
+
+    expr_string = expr2str(expr);
+    println(expr_string);
+
+    ast = str2expr(expr_string);
+    println(expr2str(ast));
+
+    result = Calc(expr);
+    println(result);
+   
+    result_ast = Calc(ast);
+    println(result_ast);
+
+    rpn = expr2rpn(ast);
+    println(rpn);
+}
