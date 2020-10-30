@@ -1,0 +1,52 @@
+import string;
+import lingo/pegcode/driver;
+
+Expr ::= IntConst, Mul, Add, Sub, Div, Neg, Var;
+IntConst: (value: int);
+Mul: (left: Expr, right: Expr);
+Add: (left: Expr, right: Expr);
+Sub: (left: Expr, right: Expr);
+Div: (left: Expr, right: Expr);
+Neg: (value: Expr);
+Var: (name: string);
+
+Rational(n: int, d: int);
+
+int2rat(i: int) -> Rational {
+    Rational(i, 1);
+}
+
+ints2rat(n: int, d: int) -> Rational {
+    Rational(n, d);
+}
+
+rat2str(r: Rational) -> string {
+    i2s(r.n) + "\\" + i2s(r.d);
+}
+
+str2expr(str: string) -> Expr {
+    lng = "#include D:\flow9\sandbox\mtk\lab_7.lingo";
+    parsic(compilePegGrammar(lng), str, defaultPegActions);
+}
+
+expr2str(expr: Expr) -> string {
+    switch(expr) {
+        IntConst(c): i2s(c);
+        Mul(l, r): "("  + expr2str(l) + "*" + expr2str(r) + ")";
+        Add(l, r): "("  + expr2str(l) + "+" + expr2str(r) + ")";
+        Sub(l, r): "("  + expr2str(l) + "-" + expr2str(r) + ")";
+        Div(l, r): "("  + expr2str(l) + "/" + expr2str(r) + ")";
+        Neg(e): "("  + "-" + expr2str(e) + ")";
+        Var(n): n;
+    }
+}
+
+main() {
+x="x";
+a="a";
+value=[Pair(x,5),Pair(a,10)];
+expr = Add(Mul(Mul(Var(x), Var(x)), Var(a)), Neg(Add(Var(x), IntConst(42))));
+expr_str = expr2str(expr);
+println(expr_str);
+quit(0);
+}
