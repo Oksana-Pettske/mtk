@@ -32,6 +32,18 @@ Calc(expr: Expr) -> int {
     }
 }
 
+CalcRPN(exprRPN: [ExprRPN]) -> int {
+    result = fold(exprRPN, ref [], \stack, e -> {
+        switch(e) {
+            IntConstRPN(c): refArrayPush(stack, c);
+            MulRPN(): refArrayPush(stack, pop(stack) * pop(stack));
+            AddRPN(): refArrayPush(stack, pop(stack) + pop(stack));
+        };
+        stack;
+    });
+    pop(result);
+}
+
 expr2rpn(expr: Expr) -> [ExprRPN] {
     switch (expr) {        
         IntConst(c): [IntConstRPN(c)];
@@ -47,37 +59,49 @@ rpn2str(exprRPN: [ExprRPN]) -> string {
             MulRPN(): acc + "* ";
             AddRPN(): acc + "+ ";
         }
-    })
+    });
 }
 
-/*rpn2expr(exprRPN: [ExprRPN], i: int) -> Maybe<Expr> {
-    if ( (i < 0) && (i >= length(exprRPN)) ) {
-        None();        
-    } else {
-        switch(exprRPN[i]) {
-            IntConstRPN(c): Some(IntConst(c));
-            MulRPN(): {
-                //???
-            }
-            AddRPN(): {
-                //???
-            }
-        }
-    }
-}*/
+rpn2expr(exprRPN: [ExprRPN]) -> Expr {
+    result = fold(exprRPN, ref [], \stack, e -> {
+        switch(e) {
+            IntConstRPN(c): refArrayPush(stack, IntConst(c));
+            MulRPN(): refArrayPush(stack, Mul(pop(stack), pop(stack)));
+            AddRPN(): refArrayPush(stack, Add(pop(stack), pop(stack)));
+        };
+        stack;
+    });
+    pop(result);
+}
+
+pop(stack: ref [?]) -> ? {
+    topPos = length(^stack) - 1;
+    element = ^stack[topPos];
+    stack := subrange(^stack, 0, topPos);
+    element;
+}
 
 main() {
     expr = Mul(Add(IntConst(4), Mul(IntConst(2), IntConst(3))), IntConst(5)); // (4 + 2 * 3) * 5 = 50
-    println(expr);
+    //println(expr);
+    expr_str = expr2str(expr);
+    println(expr_str);
+    result = Calc(expr);
+    println(result);
+    println("");
 
     rpn = expr2rpn(expr);
-    println(rpn);
-
+    //println(rpn);
     rpn_str = rpn2str(rpn);
     println(rpn_str);
+    resultRPN = CalcRPN(rpn);
+    println(resultRPN);
+    println("");
 
-    //rpn_expr = rpn2expr(rpn, 0);
-    //println(prn_expr);
+    rpn_expr = rpn2expr(rpn);
+    //println(rpn_expr);
+    rpn_expr_str = expr2str(rpn_expr);
+    println(rpn_expr_str);
 
     quit(0);
 }
