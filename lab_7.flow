@@ -21,7 +21,8 @@ ints2rat(n: int, d: int) -> Rational {
 }
 
 rat2str(r: Rational) -> string {
-    i2s(r.n) + "\\" + i2s(r.d);
+    if (r.d == 1) i2s(r.n)
+    else i2s(r.n) + "|" + i2s(r.d);
 }
 
 str2expr(str: string) -> Expr {
@@ -36,17 +37,79 @@ expr2str(expr: Expr) -> string {
         Add(l, r): "("  + expr2str(l) + "+" + expr2str(r) + ")";
         Sub(l, r): "("  + expr2str(l) + "-" + expr2str(r) + ")";
         Div(l, r): "("  + expr2str(l) + "/" + expr2str(r) + ")";
-        Neg(e): "("  + "-" + expr2str(e) + ")";
+        Neg(v): "("  + "-" + expr2str(v) + ")";
         Var(n): n;
     }
 }
 
+MulRat(l: Rational, r: Rational) -> Rational {
+    x = l.n * r.n;
+    y = l.d * r.d;
+    ints2rat(x / gcd(x, y), y / gcd(x,y));
+}
+
+AddRat(l: Rational, r: Rational) -> Rational {
+    x = l.n * r.d + l.d * r.n;
+    y = l.d * r.d;
+    ints2rat(x / gcd(x, y), y / gcd(x,y));
+}
+
+SubRat(l: Rational, r: Rational) -> Rational {
+    x = l.n * r.d - l.d * r.n;
+    y = l.d * r.d;
+    ints2rat(x / gcd(x, y), y / gcd(x,y));
+}
+
+DivRat(l: Rational, r: Rational) -> Rational {
+    x = l.n * r.d;
+    y = l.d * r.n;
+    ints2rat(x / gcd(x, y), y / gcd(x,y));
+}
+
+NegRat(v: Rational) -> Rational {
+    ints2rat(-v.n, v.d);
+}
+
+maybeOp(f: (?, ??) -> ???, arg1: Maybe<?>, arg2: Maybe<??>) -> Maybe<???> {
+    switch (arg1) {
+        None(): None();
+        Some(x): switch (arg2) {
+            None(): None();
+            Some(y): Some(f(x, y));
+        }
+    }
+}
+
+Calc(expr: Expr, value: [Pair<string, int>]) -> Maybe<Rational> {
+    switch(expr) {
+        IntConst(c): Some(int2rat(c));
+        Mul(l, r): maybeOp(MulRat, Calc(l, value), Calc(r, value));
+        Add(l, r): maybeOp(AddRat, Calc(l, value), Calc(r, value));
+        Sub(l, r): maybeOp(SubRat, Calc(l, value), Calc(r, value));
+        Div(l, r): maybeOp(DivRat, Calc(l, value), Calc(r, value));
+        Neg(v): maybeMap(Calc(v, value), NegRat);
+        Var(n): {
+            index = findi(value, \p -> p.first == n);
+            switch (index) {
+                None(): None();
+                Some(i): Some(int2rat(value[i].second));
+            }
+        }
+    }
+}
+
 main() {
-x="x";
-a="a";
-value=[Pair(x,5),Pair(a,10)];
-expr = Add(Mul(Mul(Var(x), Var(x)), Var(a)), Neg(Add(Var(x), IntConst(42))));
-expr_str = expr2str(expr);
-println(expr_str);
-quit(0);
+    x = "x";
+    a = "a";
+
+    value = [Pair(x, 5), Pair(a, 10)];
+    expr = Add(Mul(Mul(Var(x), Var(x)), Var(a)), Neg(Add(Var(x), IntConst(42))));
+
+    expr_str = expr2str(expr);
+    println(expr_str);
+
+    result = Calc(expr, value);
+    println(result);
+
+     quit(0);
 }
