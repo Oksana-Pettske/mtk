@@ -1,0 +1,347 @@
+import string;
+import lingo/pegcode/driver;
+
+Expr ::= IntConst, Mul, Add, Sub, Div, Neg, Var;
+IntConst: (value: int);
+Mul: (left: Expr, right: Expr);
+Add: (left: Expr, right: Expr);
+Sub: (left: Expr, right: Expr);
+Div: (left: Expr, right: Expr);
+Neg: (value: Expr);
+Var: (name: string);
+
+Rational(n: int, d: int);
+
+RuleR(pattern: Expr, replacement: Expr);
+
+rules = [
+    str2rule("(x + 0)", "x"),
+    str2rule("((x - z) + (y + z))", "(x + y)"),
+    str2rule("((x + z) + (y - z))", "(x + y)"),
+    str2rule("(x + x)", "(2 * x)"),
+    str2rule("- - x", "x"),
+    str2rule("(x + y)", "(y + x)"),
+    str2rule("(x * y)", "(y * x)"),
+    str2rule("(x + 0)", "x"),
+    str2rule("(x - 0)", "x"),
+    str2rule("(x - x)", "0"),
+    str2rule("(x + -x)", "0"),
+    str2rule("(-x + x)", "0"),
+    str2rule("(x * 0)", "0"),
+    str2rule("(x * 1)", "x"),
+    str2rule("(0 + x)", "x"),
+    str2rule("(0 * x)", "0"),
+    str2rule("(1 * x)", "x"),
+    str2rule("(x * -1)", "-x"),
+    str2rule("(-1 * x)", "-x"),
+    str2rule("(x / x)", "1"),
+    str2rule("(0 / x)", "0"),
+    str2rule("((x * z) + (y * z))", "((x + y) * z)"),
+    str2rule("((x + y) * z)", "((x * z) + (y * z))"),
+    str2rule("((x * z) + (y * z))", "((x + y) * z)"),
+    str2rule("((x + y) * z)", "((x * z) + (y * z))"),
+    str2rule("((x + y) + z)", "(x + (y + z))"),
+    str2rule("((x * y) * z)", "(x * (y * z))"),
+    str2rule("((x * x) - (y * y))", "((x - y) * (x + y))"),
+    str2rule("((x - y) * (x + y))", "((x * x) - (y * y))"),
+    str2rule("((x - y) * (x - y))", "(((x * x) + (y * y)) - (2 * (x * y)))"),
+    str2rule("(((x * x) + (y * y)) - (2 * (x * y)))", "((x - y) * (x - y))"),
+    str2rule("((x + y) * (x + y))", "(((x * x) + (y * y)) + (2 * (x * y)))"),
+    str2rule("(((x * x) + (y * y)) + (2 * (x * y)))", "((x + y) * (x + y))"),
+    str2rule("(((x * x) + (y * y)) + (2 * (x * y)))", "((x + y) * (x + y))")
+]
+
+str2rule(pattern: string, replacement: string) -> RuleR {
+    RuleR(str2expr(pattern), str2expr(replacement));
+}
+
+expr2str(expr: Expr) -> string {
+    switch(expr) {
+        IntConst(c): i2s(c);
+        Mul(l, r): "("  + expr2str(l) + "*" + expr2str(r) + ")";
+        Add(l, r): "("  + expr2str(l) + "+" + expr2str(r) + ")";
+        Sub(l, r): "("  + expr2str(l) + "-" + expr2str(r) + ")";
+        Div(l, r): "("  + expr2str(l) + "/" + expr2str(r) + ")";
+        Neg(v): "("  + "-" + expr2str(v) + ")";
+        Var(n): n;
+    }
+}
+
+ints2rat(n: int, d: int) -> Rational {
+    Rational(n, d);
+}
+
+rat2str(r: Rational) -> string {
+    if (r.d == 1) i2s(r.n)
+    else i2s(r.n) + "|" + i2s(r.d);
+}
+
+str2expr(str: string) -> Expr {
+    lng = "#include D:\flow9\sandbox\mtk\lab_7.lingo";
+    parsic(compilePegGrammar(lng), str, defaultPegActions);
+}
+
+bin_match(l_1: Expr, l_2: Expr, r_1: Expr, r_2: Expr, context: Tree<string, Expr>) -> Maybe<Tree<string, Expr>> {
+    switch(match(l_2, l_1, context)) {
+        Some(context_1): match(r_2, r_1, context_1);
+        None(): None();
+    }
+}
+
+match(expr: Expr, pattern: Expr, context: Tree<string, Expr>) -> Maybe<Tree<string, Expr>> {
+	switch(pattern) {
+        IntConst(c_1): {
+			switch(expr) {
+				IntConst(c_2): {
+                    if (c_1 == c_2) { Some(context); } 
+                    else { None(); }
+                }
+				default: None();
+			}
+		}
+
+        Mul(l_1, r_1): {
+			switch(expr) {
+				Mul(l_2, r_2): bin_match(l_1, l_2, r_1, r_2, context);
+				default: None();
+			}
+        }
+
+        Add(l_1, r_1): {
+			switch (expr) {
+				Add(l_2, r_2): bin_match(l_1, l_2, r_1, r_2, context);
+				default: None();
+			}
+        }
+
+        Sub(l_1, r_1): {
+			switch(expr) {
+				Sub(l_2, r_2): bin_match(l_1, l_2, r_1, r_2, context);
+				default: None();
+			}
+        }
+
+        Div(l_1, r_1): {
+			switch(expr) {
+				Div(l_2, r_2): bin_match(l_1, l_2, r_1, r_2, context);
+				default: None();
+			}
+        }
+
+        Neg(v_1): {
+			switch(expr) {
+				Neg(v_2): match(v_1, v_2, context);
+				default: None();
+			}
+        }
+
+		Var(n): {
+			switch(lookupTree(context, n)) {
+				Some(expr_1): {
+                    if (expr == expr_1) { Some(context); } 
+                    else { None(); }
+                }
+				None(): Some(setTree(context, n, expr));
+			}
+		}		
+	}
+}
+
+matchAll(test: Expr, pattern: Expr) -> Maybe<Tree<string, Expr>> {
+    match(test, pattern, makeTree());
+}
+
+substitude(expr: Expr, subst: Tree<string, Expr>) -> Expr {
+	switch (expr) {
+        IntConst(c): expr;
+		Mul(l, r): Mul(substitude(l, subst), substitude(r, subst));
+        Add(l, r): Add(substitude(l, subst), substitude(r, subst));
+		Sub(l, r): Sub(substitude(l, subst), substitude(r, subst));
+		Div(l, r): Div(substitude(l, subst), substitude(r, subst));
+		Neg(v): Neg(substitude(v, subst));
+		Var(n): lookupTreeDef(subst, n, expr);
+	}
+}
+
+simplify(expr: Expr, rules: [RuleR]) -> Expr {
+    r = fold(rules, expr, \e, rul ->
+            switch(matchAll(expr, rul.pattern)) {
+                Some(context): {
+                    candidate = substitude(rul.replacement, context);
+                    if(cost(candidate) < cost(e)) { candidate; }
+                    else { e; }
+                }
+                None(): e;
+            }
+        );
+    r;
+}
+
+cost(expr: Expr) -> int {
+	switch(expr) {
+        IntConst(c): 1;
+        Mul(l, r): cost(l) + cost(r);
+        Add(l, r): cost(l) + cost(r);
+		Sub(l, r): cost(l) + cost(r);
+		Div(l, r): cost(l) + cost(r);
+		Neg(v): 1 + cost(v);
+		Var(n): 1;
+	}
+}
+
+simplifyAll(expr: Expr) -> Expr {
+    switch (expr) {
+        IntConst(c): IntConst(c); 
+
+        Mul(l, r): { 
+            l_s = simplifyAll(l);
+            r_s = simplifyAll(r); 
+            switch(l_s) {
+                IntConst(val_l): { 
+                    switch(r_s) {
+                        IntConst(val_r): { IntConst(val_l * val_r); } 
+                        default: { 
+                            if (val_l == 0) { IntConst(0); }
+                            else if (val_l == 1) { r_s; }
+                            else { Mul(l_s, r_s); }
+                        }
+                    }
+                }
+                default: { 
+                    switch(r_s) {
+                        IntConst(val_r): { 
+                            if (val_r == 0) { IntConst(0); }
+                            else if (val_r == 1) { l_s; }
+                            else { Mul(l_s, r_s); }
+                        }
+                        default: { Mul(l_s, r_s); } 
+                    }
+                }
+            }
+        }
+
+        Add(l, r): { 
+            l_s = simplifyAll(l);
+            r_s = simplifyAll(r); 
+            switch(l_s) {
+                IntConst(val_l): {
+                    switch(r_s) {
+                        IntConst(val_r): { IntConst(val_l + val_r); }
+                        default: {
+                            if (val_l == 0) { r_s; }
+                            else { Add(l_s, r_s); }
+                        }
+                    }
+                }
+                default: {
+                    switch(r_s) {
+                        IntConst(val_r): { 
+                            if (val_r == 0) { l_s; }
+                            else { Add(l_s, r_s); }
+                        }
+                        default: { Add(l_s, r_s); }
+                    }
+                }
+            }
+        }
+            
+        Sub(l, r): { 
+            l_s = simplifyAll(l);
+            r_s = simplifyAll(r); 
+            switch(l_s) {
+                IntConst(val_l): {
+                    switch(r_s) {
+                        IntConst(val_r): { IntConst(val_l - val_r); }
+                        default: {
+                            if (val_l == 0) { Neg(r_s); }
+                            else { Sub(l_s, r_s); }
+                        } 
+                    }
+                }
+                default: {
+                    switch(r_s) {
+                        IntConst(val_r): { 
+                            if (val_r == 0) { l_s; }
+                            else { Sub(l_s, r_s); }
+                        }
+                        default: { Sub(l_s, r_s); }
+                    }
+                }
+            }
+        }
+
+        Div(l, r): { 
+            l_s = simplifyAll(l);
+            r_s = simplifyAll(r);
+            switch(l_s) {
+                IntConst(val_l): {
+                    switch(r_s) {
+                        IntConst(val_r): { IntConst(val_l / val_r); }
+                        default: { Div(l_s, r_s); }
+                    }
+                }
+                default: { Div(l_s, r_s); }
+            }
+        }
+
+        Neg(v): { 
+            switch(v) {
+                IntConst(val): {
+                    if(val == 0) { IntConst(0); }
+                    else { Neg(v); }
+                }
+                default: Neg(simplifyAll(v));
+            }
+        }        
+            
+        Var(var): Var(var);
+    }
+        
+}
+
+expr2poly(expr: Expr) -> Div {
+    switch (expr) {
+        IntConst(c): Div(IntConst(c), IntConst(1));
+
+        Mul(l, r): {
+            l_p = expr2poly(l);
+            r_p = expr2poly(r);
+            Div(Mul(l_p.left, r_p.left), Mul(l_p.right, r_p.right));
+        }
+
+        Add(l, r): {
+            l_p = expr2poly(l);
+            r_p = expr2poly(r);
+            Div(Add(Mul(l_p.left, r_p.right), Mul(r_p.left, l_p.right)), Mul(l_p.right, r_p.right));
+        }
+
+        Sub(l, r): {
+            l_p = expr2poly(l);
+            r_p = expr2poly(r);
+            Div(Sub(Mul(l_p.left, r_p.right), Mul(r_p.left, l_p.right)), Mul(l_p.right, r_p.right));
+        }
+
+        Div(l, r): {
+            l_p = expr2poly(l);
+            r_p = expr2poly(r);
+            Div(Mul(l_p.left, r_p.right), Mul(r_p.left, l_p.right));
+        }
+
+        Neg(v): {
+            v_p = expr2poly(v);
+            Div(Neg(v_p.left), v_p.right);
+        }
+
+        Var(n): Div(Var(n), IntConst(1));
+    }
+}
+
+main() {
+    expr_str_1 = "((32/(10*a))-(((b*1)*((7-(a*b))/6))/((b+b)/(9-(6/a)))))";
+	expr_1 = str2expr(expr_str_1);
+    poly_1 = expr2poly(expr_1); 
+    //println(expr2str(poly_1)); 
+    e = str2expr("((x * 1) * 1)");
+    println(expr2str(simplify(e, rules)));
+    quit(0);
+}

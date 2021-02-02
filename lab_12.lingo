@@ -1,0 +1,33 @@
+programm = ws declaration*:d statement+:b { VProgramm(:d, :b) };
+
+declaration = "var" ws variable:v ":" ws type:t ";" ws { Declaration(:v, :t) };
+
+variable = letter+ $s ws { $s };
+
+type = int | array;
+    int = "int" ws { IntType() };
+    array = "[" ws type:t "]" ws { ArrType(:t) };
+
+statement = label ":" ws (print | assignment | ifelse);
+    print = "print" ws "(" ws expression:e ")" ws goto:gt { VPrint(:e, :gt) };
+    assignment = variable:v ":=" ws expression:e goto:gt ws  { VAssignment(:v, :e, :gt) };
+    ifelse = "if" ws "(" ws expression:l condition$s ws expression:r ")" ws goto:p "else" ws goto:n { VIfElse($s, :l, :r, :p, :n) };
+
+label  = digit+ $s ws { s2i($s) };
+
+goto   = "goto" ws "{" ws label*:ls "}" ws { :ls };
+
+expression = var | intconst | apply | unoperation | binoperation | update ;
+    var = variable:v { Var(:v) };
+    intconst = digit+ $s ws { IntConst(s2i($s)) };
+    apply = "app" ws "(" ws expression:a "," ws expression:i ")" ws { Apply(:a, :i) };
+    unoperation = "-" $s ws expression:e { UnOperation($s, :e) };
+    binoperation = "(" ws expression:l  sign$s ws expression:r ")" ws {BinOperation($s, :l, :r) };
+    update = "upd" ws "(" ws expression:a "," ws expression:i "," ws expression:v ")" ws { Update(:a, :i, :v) };
+
+letter = 'a'-'z';
+digit  = '0'-'9';
+sign = "+" | "*" | "/" | "-" ;
+condition = "!=" | "==" | "<=" | ">=" | "<" | ">" ;
+
+ws = (' ' | '\t' | '\n' | '\r')*;

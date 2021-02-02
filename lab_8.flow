@@ -1,0 +1,259 @@
+import string;
+import lingo/pegcode/driver;
+
+Expr ::= IntConst, Mul, Add, Sub, Div, Neg, Var;
+IntConst: (value: int);
+Mul: (left: Expr, right: Expr);
+Add: (left: Expr, right: Expr);
+Sub: (left: Expr, right: Expr);
+Div: (left: Expr, right: Expr);
+Neg: (value: Expr);
+Var: (name: string);
+
+Rational(n: int, d: int);
+
+int2rat(i: int) -> Rational {
+    Rational(i, 1);
+}
+
+ints2rat(n: int, d: int) -> Rational {
+    Rational(n, d);
+}
+
+rat2str(r: Rational) -> string {
+    if (r.d == 1) i2s(r.n)
+    else i2s(r.n) + "|" + i2s(r.d);
+}
+
+str2expr(str: string) -> Expr {
+    lng = "#include D:\flow9\sandbox\mtk\lab_7.lingo";
+    parsic(compilePegGrammar(lng), str, defaultPegActions);
+}
+
+expr2str(expr: Expr) -> string {
+    switch (expr) {
+        IntConst(c): i2s(c);
+        Mul(l, r): "("  + expr2str(l) + "*" + expr2str(r) + ")";
+        Add(l, r): "("  + expr2str(l) + "+" + expr2str(r) + ")";
+        Sub(l, r): "("  + expr2str(l) + "-" + expr2str(r) + ")";
+        Div(l, r): "("  + expr2str(l) + "/" + expr2str(r) + ")";
+        Neg(v): "("  + "-" + expr2str(v) + ")";
+        Var(n): n;
+    }
+}
+
+MulRat(l: Rational, r: Rational) -> Rational {
+    x = l.n * r.n;
+    y = l.d * r.d;
+    ints2rat(x / gcd(x, y), y / gcd(x,y));
+}
+
+AddRat(l: Rational, r: Rational) -> Rational {
+    x = l.n * r.d + l.d * r.n;
+    y = l.d * r.d;
+    ints2rat(x / gcd(x, y), y / gcd(x,y));
+}
+
+SubRat(l: Rational, r: Rational) -> Rational {
+    x = l.n * r.d - l.d * r.n;
+    y = l.d * r.d;
+    ints2rat(x / gcd(x, y), y / gcd(x,y));
+}
+
+DivRat(l: Rational, r: Rational) -> Rational {
+    x = l.n * r.d;
+    y = l.d * r.n;
+    ints2rat(x / gcd(x, y), y / gcd(x,y));
+}
+
+NegRat(v: Rational) -> Rational {
+    ints2rat(-v.n, v.d);
+}
+
+maybeOp(f: (?, ??) -> ???, arg1: Maybe<?>, arg2: Maybe<??>) -> Maybe<???> {
+    switch (arg1) {
+        None(): None();
+        Some(x): switch (arg2) {
+            None(): None();
+            Some(y): Some(f(x, y));
+        }
+    }
+}
+
+Calc(expr: Expr, value: [Pair<string, int>]) -> Maybe<Rational> {
+    switch (expr) {
+        IntConst(c): Some(int2rat(c));
+        Mul(l, r): maybeOp(MulRat, Calc(l, value), Calc(r, value));
+        Add(l, r): maybeOp(AddRat, Calc(l, value), Calc(r, value));
+        Sub(l, r): maybeOp(SubRat, Calc(l, value), Calc(r, value));
+        Div(l, r): maybeOp(DivRat, Calc(l, value), Calc(r, value));
+        Neg(v): maybeMap(Calc(v, value), NegRat);
+        Var(n): {
+            index = findi(value, \p -> p.first == n);
+            switch (index) {
+                None(): None();
+                Some(i): Some(int2rat(value[i].second));
+            }
+        }
+    }
+}
+
+Der(expr: Expr, value: string) -> Expr {
+    switch (expr) {
+        IntConst(c): IntConst(c);
+        Mul(l, r): Add(Mul(Der(l, value), r), Mul(l, Der(r, value)));
+        Add(l, r): Add(Der(l, value), Der(r, value));
+        Sub(l, r): Sub(Der(l, value), Der(r, value));
+        Div(l, r): Div(Add(Mul(Der(l, value), r), Mul(l, Der(r, value))), Mul(r, r));
+        Neg(v): Neg(Der(v, value));
+        Var(n): {
+            if (n == value) {
+                IntConst(1);
+            }
+            else {
+                Var(n);
+            }
+        }
+    }
+}
+
+Simpl(expr: Expr) -> Expr {
+    switch (expr) {
+        IntConst(c): IntConst(c); 
+
+        Mul(l, r): { 
+            l_s = Simpl(l);
+            r_s = Simpl(r); 
+            switch (l_s) {
+                IntConst(val_l): { 
+                    switch (r_s) {
+                        IntConst(val_r): { IntConst(val_l * val_r); } 
+                        default: { 
+                            if (val_l == 0) { IntConst(0); }
+                            else if (val_l == 1) { r_s; }
+                            else { Mul(l_s, r_s); }
+                        }
+                    }
+                }
+                default: { 
+                    switch (r_s) {
+                        IntConst(val_r): { 
+                            if (val_r == 0) { IntConst(0); }
+                            else if (val_r == 1) { l_s; }
+                            else { Mul(l_s, r_s); }
+                        }
+                        default: { Mul(l_s, r_s); } 
+                    }
+                }
+            }
+        }
+
+        Add(l, r): { 
+            l_s = Simpl(l);
+            r_s = Simpl(r); 
+            switch (l_s) {
+                IntConst(val_l): {
+                    switch (r_s) {
+                        IntConst(val_r): { IntConst(val_l + val_r); }
+                        default: {
+                            if (val_l == 0) { r_s; }
+                            else { Add(l_s, r_s); }
+                        }
+                    }
+                }
+                default: {
+                    switch (r_s) {
+                        IntConst(val_r): { 
+                            if (val_r == 0) { l_s; }
+                            else { Add(l_s, r_s); }
+                        }
+                        default: { Add(l_s, r_s); }
+                    }
+                }
+            }
+        }
+            
+        Sub(l, r): { 
+            l_s = Simpl(l);
+            r_s = Simpl(r); 
+            switch (l_s) {
+                IntConst(val_l): {
+                    switch (r_s) {
+                        IntConst(val_r): { IntConst(val_l - val_r); }
+                        default: {
+                            if (val_l == 0) { Neg(r_s); }
+                            else { Sub(l_s, r_s); }
+                        } 
+                    }
+                }
+                default: {
+                    switch (r_s) {
+                        IntConst(val_r): { 
+                            if (val_r == 0) { l_s; }
+                            else { Sub(l_s, r_s); }
+                        }
+                        default: { Sub(l_s, r_s); }
+                    }
+                }
+            }
+        }
+
+        Div(l, r): { 
+            l_s = Simpl(l);
+            r_s = Simpl(r);
+            switch (l_s) {
+                IntConst(val_l): {
+                    switch (r_s) {
+                        IntConst(val_r): { IntConst(val_l / val_r); }
+                        default: { Div(l_s, r_s); }
+                    }
+                }
+                default: { Div(l_s, r_s); }
+            }
+        }
+
+        Neg(v): { 
+            switch (v) {
+                IntConst(val): {
+                    if (val == 0) { IntConst(0); }
+                    else { Neg(v); }
+                }
+                default: Neg(Simpl(v));
+            }
+        }        
+            
+        Var(var): Var(var);
+    }
+        
+}
+
+main() {
+    x = "x";
+    y = "y";
+    a = "a";
+    b = "b";
+
+    value = [Pair(x, 5), Pair(y, 10)];
+    expr = Add(Mul(Mul(Var(x), Var(x)), Var(y)), Neg(Add(Var(x), IntConst(42))));
+
+    expr_str = expr2str(expr);
+    println("Test 1:\nExpression: " + expr_str);
+
+    println("\nSymbolic derivation:");
+    der_x = Der(expr, x);
+    der_x_str = expr2str(der_x);
+    println("x: " + der_x_str);
+    der_y = Der(expr, y);
+    der_y_str = expr2str(der_y);
+    println("y: " + der_y_str);
+
+    println("\nSimplification:");
+    simpl_x = Simpl(der_x);
+    simpl_x_str = expr2str(simpl_x);
+    println("x: " + simpl_x_str);
+    simpl_y = Simpl(der_y);
+    simpl_y_str = expr2str(simpl_y);
+    println("y: " + simpl_y_str);
+
+     quit(0);
+}

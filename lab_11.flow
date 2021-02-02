@@ -1,0 +1,284 @@
+import string;
+import lingo/pegcode/driver;
+
+Programm(declarations: [Declaration], body: Statement);
+
+Declaration(variable: string, type: Type);
+
+Type ::= IntType, ArrType;
+	IntType();
+	ArrType(type : Type);
+
+Statement ::= Loop, Or, Print, Sequence, Assignment, Test;
+	Loop(body: Statement);
+	Or(statements: [Statement]);
+	Print(expression: Expression);
+	Sequence(statements: [Statement]);
+	Assignment(variable: string, value: Expression);
+	Test(condition: string, left : Expression, right : Expression);
+		
+Expression ::= Var, IntConst, Apply, UnOperation, BinOperation, Update;
+	Var(name: string);
+	IntConst(value: int);
+	Apply(array: Expression, index: Expression);
+	UnOperation(sign: string, expression: Expression);
+	BinOperation(sign: string, left: Expression, right: Expression);
+	Update(array: Expression, index: Expression, value: Expression);
+
+/*___________String to Programm___________*/	
+str2prog(str: string) -> Programm {
+	lng = "#include sandbox/mtk/lab_11.lingo";
+	parsic(compilePegGrammar(lng), str, SemanticActions(createActions()))
+}
+
+createActions() -> Tree<string, flow> {
+	mergeTree(defaultPegActions.t,
+		pairs2tree([
+			Pair("createSeq", \s -> Sequence(concat3([s[0]], [s[1]], s[2]))),
+			Pair("createOr", \s -> Or(concat3([s[0]], [s[1]], s[2]))),
+			Pair("createIfElse", \s -> 
+				Or([
+					Sequence([Test(s[0], s[1], s[2]), s[3]]),
+					Sequence([Test(negateCondition(s[0]), s[1], s[2]), s[4]])
+				])
+			),
+			Pair("createWhile", \s -> 
+				Sequence([
+					Loop(Sequence([Test(s[0], s[1], s[2]), s[3]])),
+					Test(negateCondition(s[0]), s[1], s[2])
+				])
+			),
+		])
+	)
+}
+
+negateCondition(cond: string) -> string {
+	if (cond == "!=") { "==" } 
+	else
+		if (cond == "==") { "!=" } 
+		else
+			if (cond == "<=") { ">" } 
+			else
+				if (cond == "<=") { ">" } 
+				else
+					if (cond == "<") { ">=" } 
+					else
+						if (cond == ">") { "<=" }  
+						else "";
+}
+
+/*__________Programm to String__________*/
+
+prog2str(prog: Programm) -> string {
+	strGlue(map(prog.declarations, decl2str), "\n") + "\n" + stat2str(prog.body);
+}
+
+decl2str(decl: Declaration) -> string {
+	"var " + decl.variable + " : " + type2str(decl.type) + ";";
+}
+
+type2str(type: Type) -> string {
+	switch (type) {
+		IntType(): "int";
+		ArrType(t): "[" + type2str(t) + "]";
+	}
+}
+
+stat2str(stat: Statement) -> string {
+	switch (stat) {
+		Loop(b): "(" + stat2str(b) + ")*";
+		Or(ss): "{\n" + strGlue(map(ss, \s -> createOffset(stat2str(s))), "U\n") + "\n}";
+		Print(e): "print(" + expr2str(e) + ")";
+		Sequence(ss): "{\n" + strGlue(map(ss, \s -> createOffset(stat2str(s))), ";\n") + "\n}";
+		Assignment(var, val): var + " := " + expr2str(val);
+		Test(c, l, r): "(" + expr2str(l) + " " + c + " " + expr2str(r) + ")?";
+	}
+}
+
+createOffset(str: string) -> string {
+	strGlue(map(strSplit(str, "\n"), \s -> "\t" + s), "\n");
+}
+
+expr2str(expr: Expression) -> string {
+	switch (expr) {
+		Var(n): n;
+		IntConst(v): i2s(v);
+		Apply(a, i): "app(" + expr2str(a) + ", " + expr2str(i) + ")";
+		UnOperation(s, e): s + " " + expr2str(e);
+		BinOperation(s, l, r): "(" + expr2str(l) + " " + s + " " + expr2str(r) + ")";
+		Update(a, i, v): "upd(" + expr2str(a) + ", " + expr2str(i) + ", " + expr2str(v) + ")";
+	}
+}
+
+/*__________Check Programm__________*/
+checkProgramm(prog: Programm, errors: (string) -> void) -> void {
+	checkStatements(prog.body, checkDeclarations(prog, errors), errors)
+}
+
+checkDeclarations(prog: Programm, errors: (string) -> void) -> Tree<string, Type> {
+	fold(prog.declarations, makeTree(), \acc, decl -> {
+		if (containsKeyTree(acc, decl.variable)) {
+			errors("DECLARATION ERROR\tDo not redefine variable: " + decl.variable);
+		}
+		setTree(acc, decl.variable, decl.type)
+	})
+}
+
+checkStatements(stat: Statement, declTypes: Tree<string, Type>, errors: (string) -> void) -> void {
+	switch (stat) {
+		Assignment(var, val):
+			switch (lookupTree(declTypes, var)) {
+				Some(var_type): {
+					maybeApply(checkExpression(val, declTypes, errors), \val_type ->
+						if (val_type != var_type) { 
+							errors("ASSIGNMENT ERROR\tVariable  " + var + " type: " + type2str(var_type) + 
+									". Assigned expression type: " + type2str(val_type)
+							);
+						}
+					)
+				}
+				None(): errors("ASSIGNMENT ERROR\tVariable " + var + " is not declared");
+			}
+		Test(op, l, r):
+			maybeApply(checkExpression(l, declTypes, errors), \l_type ->
+				maybeApply(checkExpression(r, declTypes, errors), \r_type -> {
+					if (l_type != IntType()) {
+						errors("TEST ERROR\tIn comparison " + op + " left side must be of integer type, but is: " + type2str(l_type));
+					}
+					if (r_type != IntType()) {
+						errors("TEST ERROR\tIn comparison " + op + " right side must be of integer type, but is: " + type2str(r_type));
+					}
+				})
+			);
+		Sequence(stats):
+			iter(stats, \s -> checkStatements(s, declTypes, errors));
+		Or(stats):
+			iter(stats, \s -> checkStatements(s, declTypes, errors));
+		Loop(body):
+			checkStatements(body, declTypes, errors)
+		Print(e): {
+			checkExpression(e, declTypes, errors);
+			{}
+		}
+	}
+}
+
+checkExpression(expr: Expression, declTypes: Tree<string, Type>, errors: (string) -> void) -> Maybe<Type> {
+	switch (expr) {
+		BinOperation(op, l, r):
+			maybeBind2(
+				\l_type, r_type -> {
+					if (l_type != IntType()) {
+						errors("BINOPERATION ERROR\tIn binary operation " + op + " left side must be of integer type, but is: " + type2str(l_type));
+						None();
+					} else {
+						if (r_type != IntType()) {
+							errors("BINOPERATION ERROR\tIn binary operation " + op + " right side must be of integer type, but is: " + type2str(r_type));
+							None();
+						} else {
+							Some(IntType());
+						}
+					}
+				}
+			)
+			(checkExpression(l, declTypes, errors), checkExpression(r, declTypes, errors));
+		UnOperation(op, e):
+			maybeBind(checkExpression(e, declTypes, errors), 
+				\e_type -> {
+					if (e_type != IntType()) {
+						errors("UNOPERATION ERROR\tIn unary operation " + op + " operand must be of integer type, but is: " + type2str(e_type));
+						None()
+					} else {
+						Some(IntType());
+					}
+				}
+			);
+		Update(arr, ind, upd):
+			maybeBind(checkExpression(upd, declTypes, errors), \upd_type ->
+				maybeBind2(
+					\arr_type, ind_type -> {
+						switch (arr_type) {
+							ArrType(val_type): {
+								if (ind_type != IntType()) {
+									errors("UPDATE ERROR\tIn array update operation index side must be of integer type, but is: " + type2str(ind_type));
+									None();
+								} else {
+									if (upd_type == val_type) {
+										Some(ArrType(val_type));
+									} else {
+										errors("UPDATE ERROR\tIn array update operation update type must coincide with the array value type, but is: " + type2str(upd_type));
+										None();
+									}
+								}
+							}
+							default: {
+								errors("UPDATE ERROR\tIn array update operation array side must be of array type, but is: " + type2str(arr_type));
+								None();
+							}
+						}
+					}
+				)
+				(checkExpression(arr, declTypes, errors), checkExpression(ind, declTypes, errors))
+			);
+		Apply(arr, ind):
+			maybeBind2(
+				\arr_type, ind_type -> {
+					switch (arr_type) {
+						ArrType(val_type): {
+							if (ind_type != IntType()) {
+								errors("APPLY ERROR\tIn array index operation index side must be of integer type, but is: " + type2str(ind_type));
+								None();
+							} else {
+								Some(val_type);
+							}
+						}
+						default: {
+							errors("APPLY ERROR\tIn array index operation array side must be of array type, but is: " + type2str(arr_type));
+							None();
+						}
+					}
+				}
+			)
+			(checkExpression(arr, declTypes, errors), checkExpression(ind, declTypes, errors));
+		Var(name): {
+			ret = lookupTree(declTypes, name);
+			if (ret == None()) {
+				errors("VARIABLE ERROR\tVariable is not declared: " + name);
+			}
+			ret
+		}
+		IntConst(__): Some(IntType());
+	}
+}
+
+main() {
+	println("TEST 1:");
+	s_1 = getFileContent("sandbox/mtk/test_1.txt");
+	
+	println("\nPROGRAMM 1:");
+	p_1 = str2prog(s_1);
+	println(p_1);
+
+	println("\nPROGRAMM 1 CHECKING:");
+	checkProgramm(p_1, \errors -> println(errors));
+
+	println("\nPROGRAMM 1 VIEW:");
+	sp_1 = prog2str(p_1);
+	println(sp_1);
+
+	println("\n\nTEST 2:");
+	s_2 = getFileContent("sandbox/mtk/test_2.txt");
+	
+	println("\nPROGRAMM 2:");
+	p_2 = str2prog(s_2);
+	println(p_2);
+
+	println("\nPROGRAMM 2 CHECKING:");
+	checkProgramm(p_2, \errors -> println(errors));
+
+	println("\nPROGRAMM 2 VIEW:");
+	sp_2 = prog2str(p_2);
+	println(sp_2);
+
+	quit(0);
+}

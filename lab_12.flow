@@ -1,0 +1,603 @@
+import ds/set;
+import lingo/pegcode/driver;
+
+Programm(declarations: [Declaration], body: Statement);
+VProgramm(declarations: [Declaration], body: [VStatement]);
+
+Declaration(variable: string, type: Type);
+
+Type ::= IntType, ArrType;
+	IntType();
+	ArrType(type: Type);
+
+Statement ::= Loop, Or, Print, Sequence, Assignment, Test;
+	Loop(body: Statement);
+	Or(statements: [Statement]);
+	Print(expression: Expression);
+	Sequence(statements: [Statement]);
+	Assignment(variable: string, value: Expression);
+	Test(condition: string, left : Expression, right : Expression);
+
+VStatement ::= VPrint, VAssignment, VIfElse;
+    VPrint(expression: Expression, goto: [int]);
+	VAssignment(variable: string, value: Expression, goto: [int]);
+	VIfElse(condition: string, left : Expression, right : Expression, positive: [int], negative: [int]);
+	    
+Expression ::= Var, IntConst, Apply, UnOperation, BinOperation, Update;
+	Var(name: string);
+	IntConst(value: int);
+	Apply(array: Expression, index: Expression);
+	UnOperation(sign: string, expression: Expression);
+	BinOperation(sign: string, left: Expression, right: Expression);
+	Update(array: Expression, index: Expression, value: Expression);
+
+State(vars : Tree<string, Value>);
+
+Value ::= IntVal, ArrVal;
+    IntVal(value: int);
+    ArrVal(array: [Value]);
+
+VConfiguration(label: int, state: State);
+
+VSequenceAcc(statements: [[VStatement]], end_label: int);
+
+VOrAcc(
+	statements: [[VStatement]],
+	starts: [int],
+	ends: [int],
+	end_label : int
+);
+
+/*___________String to Programm___________*/	
+str2prog(str: string) -> Programm {
+	lng = "#include sandbox/mtk/lab_11.lingo";
+	parsic(compilePegGrammar(lng), str, SemanticActions(createActions()));
+}
+
+str2vprog(str: string) -> VProgramm {
+    lng = "#include sandbox/mtk/lab_12.lingo";
+	parsic(compilePegGrammar(lng), str, defaultPegActions);
+}
+
+createActions() -> Tree<string, flow> {
+	mergeTree(defaultPegActions.t,
+		pairs2tree([
+			Pair("createSeq", \s -> Sequence(concat3([s[0]], [s[1]], s[2]))),
+			Pair("createOr", \s -> Or(concat3([s[0]], [s[1]], s[2]))),
+			Pair("createIfElse", \s -> 
+				Or([
+					Sequence([Test(s[0], s[1], s[2]), s[3]]),
+					Sequence([Test(negateCondition(s[0]), s[1], s[2]), s[4]])
+				])
+			),
+			Pair("createWhile", \s -> 
+				Sequence([
+					Loop(Sequence([Test(s[0], s[1], s[2]), s[3]])),
+					Test(negateCondition(s[0]), s[1], s[2])
+				])
+			),
+		])
+	)
+}
+
+negateCondition(cond: string) -> string {
+	if (cond == "!=") { "==" } 
+	else
+		if (cond == "==") { "!=" } 
+		else
+			if (cond == "<=") { ">" } 
+			else
+				if (cond == "<=") { ">" } 
+				else
+					if (cond == "<") { ">=" } 
+					else
+						if (cond == ">") { "<=" }  
+						else "";
+}
+
+/*__________Programm to String__________*/
+type2str(type: Type) -> string {
+	switch (type) {
+		IntType(): "int";
+		ArrType(t): "[" + type2str(t) + "]";
+	}
+}
+
+decl2str(decl: Declaration) -> string {
+	"var " + decl.variable + " : " + type2str(decl.type) + ";";
+}
+
+expr2str(expr: Expression) -> string {
+	switch (expr) {
+		Var(n): n;
+		IntConst(v): i2s(v);
+		Apply(a, i): "app(" + expr2str(a) + ", " + expr2str(i) + ")";
+		UnOperation(s, e): s + " " + expr2str(e);
+		BinOperation(s, l, r): "(" + expr2str(l) + " " + s + " " + expr2str(r) + ")";
+		Update(a, i, v): "upd(" + expr2str(a) + ", " + expr2str(i) + ", " + expr2str(v) + ")";
+	}
+}
+
+/*__________Programm to VProgramm__________*/
+prog2vprog(prog: Programm) -> Maybe<VProgramm> {
+	err_count = ref 0;
+	errors = \err -> {
+		println(err);
+		err_count := ^err_count + 1;
+	}
+	checkProgramm(prog, errors);
+	if (^err_count == 0) { Some(VProgramm(prog.declarations, stat2vstat(prog.body))); } 
+    else { None(); }
+}
+
+stat2vstat(stat : Statement) -> [VStatement] {
+	switch(stat) {
+		Assignment(var, val): [ VAssignment(var, val, [1]) ];
+		Print(e): [ VPrint(e, [1]) ];
+		Test(c, l, r): [ VIfElse(c, l, r, [1], []) ];
+		Sequence(ss): {
+			concatA(fold(ss, VSequenceAcc([], 0), \acc, s -> {
+					vs = stat2vstat(s);
+					size = maxLabel(vs);
+					VSequenceAcc(concat(acc.statements, [addLabel(vs, acc.end_label)]), acc.end_label + size);
+				}
+			).statements);
+        }
+		Or(ss): {
+			orAcc = fold(ss, VOrAcc([], [], [], 1), \acc, s -> {
+					vs = stat2vstat(s);
+					size = maxLabel(vs);
+					VOrAcc(
+						concat(acc.statements, [addLabel(vs, acc.end_label)]),
+						concat(acc.starts, [acc.end_label]),
+						concat(acc.ends, [acc.end_label + size]),
+						acc.end_label + size
+					);
+				}
+			);
+			concat(
+				[VIfElse("==", IntConst(0), IntConst(0), orAcc.starts, [])],
+				foldi(orAcc.statements, [], \i, acc, s ->
+					concat(acc, replaceLabel(s, orAcc.ends[i], orAcc.end_label))
+				)
+			);
+		}
+		Loop(b): {
+			vs = addLabel(stat2vstat(b), 1);
+			size = maxLabel(vs);
+			concat(
+				[VIfElse("==", IntConst(0), IntConst(0), [1, size], [])],
+				replaceLabel(vs, size, 0)
+			)
+		}
+	}
+}
+
+/*__________Labels__________*/
+maxLabel(stats: [VStatement]) -> int {
+	end_label = \labels -> fold(labels, -1, max);
+	max_stat = \s -> {
+		switch (s) {
+			VAssignment(__,__, goto): end_label(goto);
+			VIfElse(__,__,__, p, n): max(end_label(p), end_label(n));
+			VPrint(__, goto): end_label(goto);
+		}
+	}
+	fold(stats, -1, \acc, s -> max(acc, max_stat(s)))
+}
+
+addLabel(stats: [VStatement], i: int) -> [VStatement] {
+	add_lab = \labels -> fold(labels, [], \acc, l -> concat(acc, [l + i]));
+	add_stat = \s -> {
+		switch (s) {
+			VAssignment(var, val, goto): VAssignment(var, val, add_lab(goto));
+			VIfElse(c, l, r, p, n): VIfElse(c, l, r, add_lab(p), add_lab(n));
+			VPrint(e, goto): VPrint(e, add_lab(goto));
+		}
+	}
+	fold(stats, [], \acc, s -> concat(acc, [add_stat(s)]))
+}
+
+replaceLabel(stats: [VStatement], i: int, j: int) -> [VStatement] {
+	replace_lab = \labels -> fold(labels, [], \acc, l -> concat(acc, if (l == i) [j] else [l]));
+	replace_stat = \s -> {
+		switch (s) {
+			VAssignment(var, val, goto): VAssignment(var, val, replace_lab(goto));
+			VIfElse(c, l, r, p, n): VIfElse(c, l, r, replace_lab(p), replace_lab(n));
+			VPrint(e, goto): VPrint(e, replace_lab(goto));
+		}
+	}
+	fold(stats, [], \acc, s -> concat(acc, [replace_stat(s)]))
+}
+
+/*__________Check Programm__________*/
+checkProgramm(prog: Programm, errors: (string) -> void) -> void {
+	checkStatements(prog.body, checkDeclarations(prog, errors), errors);
+}
+
+checkDeclarations(prog: Programm, errors: (string) -> void) -> Tree<string, Type> {
+	fold(prog.declarations, makeTree(), \acc, decl -> {
+		if (containsKeyTree(acc, decl.variable)) {
+			errors("DECLARATION ERROR\tDo not redefine variable: " + decl.variable);
+		}
+		setTree(acc, decl.variable, decl.type)
+	})
+}
+
+checkStatements(stat: Statement, declTypes: Tree<string, Type>, errors: (string) -> void) -> void {
+	switch (stat) {
+		Assignment(var, val): {
+			switch (lookupTree(declTypes, var)) {
+				Some(var_type): {
+					maybeApply(checkExpression(val, declTypes, errors), \val_type ->
+						if (val_type != var_type) { 
+							errors("ASSIGNMENT ERROR\tVariable  " + var + " type: " + type2str(var_type) + 
+									". Assigned expression type: " + type2str(val_type)
+							);
+						}
+					)
+				}
+				None(): errors("ASSIGNMENT ERROR\tVariable " + var + " is not declared");
+			}
+        }
+		Test(op, l, r): {
+			maybeApply(checkExpression(l, declTypes, errors), \l_type ->
+				maybeApply(checkExpression(r, declTypes, errors), \r_type -> {
+					if (l_type != IntType()) {
+						errors("TEST ERROR\tIn comparison " + op + " left side must be of integer type, but is: " + type2str(l_type));
+					}
+					if (r_type != IntType()) {
+						errors("TEST ERROR\tIn comparison " + op + " right side must be of integer type, but is: " + type2str(r_type));
+					}
+				})
+			);
+        }
+		Sequence(stats): iter(stats, \s -> checkStatements(s, declTypes, errors));
+		Or(stats): iter(stats, \s -> checkStatements(s, declTypes, errors));
+		Loop(body): checkStatements(body, declTypes, errors)
+		Print(e): { checkExpression(e, declTypes, errors); {} }
+	}
+}
+
+checkExpression(expr: Expression, declTypes: Tree<string, Type>, errors: (string) -> void) -> Maybe<Type> {
+	switch (expr) {
+		BinOperation(s, l, r): {
+			maybeBind2(
+				\l_type, r_type -> {
+					if (l_type != IntType()) {
+						errors("BINOPERATION ERROR\tIn binary operation " + s + " left side must be of integer type, but is: " + type2str(l_type));
+						None();
+					} 
+                    else {
+						if (r_type != IntType()) {
+							errors("BINOPERATION ERROR\tIn binary operation " + s + " right side must be of integer type, but is: " + type2str(r_type));
+							None();
+						} 
+                        else { Some(IntType()); }
+					}
+				}
+			)
+			(checkExpression(l, declTypes, errors), checkExpression(r, declTypes, errors));
+        }
+		UnOperation(s, e): {
+			maybeBind(checkExpression(e, declTypes, errors), 
+				\e_type -> {
+					if (e_type != IntType()) {
+						errors("UNOPERATION ERROR\tIn unary operation " + s + " operand must be of integer type, but is: " + type2str(e_type));
+						None();
+					} 
+                    else { Some(IntType()); }
+				}
+			);
+        }
+		Update(arr, ind, upd): {
+			maybeBind(checkExpression(upd, declTypes, errors), \upd_type ->
+				maybeBind2(
+					\arr_type, ind_type -> {
+						switch (arr_type) {
+							ArrType(val_type): {
+								if (ind_type != IntType()) {
+									errors("UPDATE ERROR\tIn array update operation index side must be of integer type, but is: " + type2str(ind_type));
+									None();
+								} 
+                                else {
+									if (upd_type == val_type) { Some(ArrType(val_type)); } 
+                                    else {
+										errors("UPDATE ERROR\tIn array update operation update type must coincide with the array value type, but is: " + type2str(upd_type));
+										None();
+									}
+								}
+							}
+							default: {
+								errors("UPDATE ERROR\tIn array update operation array side must be of array type, but is: " + type2str(arr_type));
+								None();
+							}
+						}
+					}
+				)
+				(checkExpression(arr, declTypes, errors), checkExpression(ind, declTypes, errors))
+			);
+        }
+		Apply(arr, ind): {
+			maybeBind2(
+				\arr_type, ind_type -> {
+					switch (arr_type) {
+						ArrType(val_type): {
+							if (ind_type != IntType()) {
+								errors("APPLY ERROR\tIn array index operation index side must be of integer type, but is: " + type2str(ind_type));
+								None();
+							} 
+                            else { Some(val_type); }
+						}
+						default: {
+							errors("APPLY ERROR\tIn array index operation array side must be of array type, but is: " + type2str(arr_type));
+							None();
+						}
+					}
+				}
+			)
+			(checkExpression(arr, declTypes, errors), checkExpression(ind, declTypes, errors));
+        }
+		Var(name): {
+			r = lookupTree(declTypes, name);
+			if (r == None()) {
+				errors("VARIABLE ERROR\tVariable is not declared: " + name);
+			}
+			r;
+		}
+		IntConst(__): Some(IntType());
+	}
+}
+
+/*__________VProgramm to String__________*/
+vprog2str(vprog: VProgramm) -> string {
+	fold(vprog.declarations, "", \acc, decl -> acc + decl2str(decl) + "\n") 
+    + "\n" 
+    + foldi(vprog.body, "", \i, acc, s -> acc + "|" + i2s(i) + "| " + vstat2str(s) + "\n");
+}
+
+vstat2str(vstat: VStatement) -> string {
+	switch (vstat) {
+		VAssignment(var, val, goto): var + " := " + expr2str(val) + " goto |" + strGlue(map(goto, i2s), " ") + "|";
+		VIfElse(c, l, r, p, n): 
+			"if (" + expr2str(l) + " " + c + " " + expr2str(r) + ") " +
+			"goto |" + strGlue(map(p, i2s), " ") + "| else " + 
+			"goto |" + strGlue(map(n, i2s), " ") + "|";
+		VPrint(e, goto): "print(" + expr2str(e) + ")" + " goto |" + strGlue(map(goto, i2s), " ") + "|";
+	}
+}
+
+val2str(val: Value) -> string {
+	switch (val) {
+		IntVal(n): i2s(n);
+		ArrVal(arr): "[" + strGlue(map(arr, val2str), ", ") + "]";
+	}
+}
+
+/*__________Calculation__________*/
+run(vprog: VProgramm, init: State) -> void {
+	end_label = length(vprog.body);
+	start_state = State(fold(vprog.declarations, init.vars, \acc, decl ->
+		switch (lookupTree(acc, decl.variable)) {
+			Some(__): acc;
+			None(): setTree(acc, decl.variable, initDefault(decl.type));
+		}
+	));
+	final = for(
+		makeSet1(VConfiguration(0, start_state)),
+		\curr -> existsSet(curr, \conf -> conf.label != end_label),
+		\curr -> foldSet(curr, makeSet(), \acc, conf ->
+			mergeSets(acc, step(vprog, conf))
+		)
+	)
+}
+
+initDefault(type: Type) -> Value {
+	switch (type) {
+		IntType(): IntVal(0);
+		ArrType(a): ArrVal([]);
+	}
+}
+
+step(vprog: VProgramm, conf: VConfiguration) -> Set<VConfiguration> {
+	switch (vprog.body[conf.label]) {
+		VAssignment(var, val, goto): {
+			eitherMap(checkState(val, conf.state), 
+				\new_val -> {
+					new_state = State(setTree(conf.state.vars, var, new_val));
+					fold(goto, makeSet(), \acc, lab -> insertSet(acc, VConfiguration(lab, new_state)));
+				},
+				makeSet()
+			);
+        }
+		VIfElse(c, l, r, p, n): {
+			eitherMap(checkStateCondition(c, l, r, conf.state), 
+				\b -> 
+					if (b) { fold(p, makeSet(), \acc, lab -> insertSet(acc, VConfiguration(lab, conf.state))); } 
+                    else { fold(n, makeSet(), \acc, lab -> insertSet(acc, VConfiguration(lab, conf.state))); },
+				makeSet()
+			);
+        }
+		VPrint(e, goto): {
+			eitherMap(checkState(e, conf.state),
+				\v -> {
+					println(val2str(v));
+					fold(goto, makeSet(), \acc, lab -> insertSet(acc, VConfiguration(lab, conf.state)));
+				},
+				makeSet()
+			);
+        }
+	}
+}
+
+checkState(expr: Expression, state: State) -> Maybe<Value> {
+	apply_bin_op = \op, x : int, y : int -> {
+		if (op == "+") x + y else
+		if (op == "*") x * y else
+		if (op == "-") x - y else
+		if (op == "/") x / y else
+		0
+	};
+	apply_un_op = \op, x : int -> {
+		if (op == "+") x else
+		if (op == "-") -x else
+		0
+	};
+	switch (expr) {
+		BinOperation(s, le, re): {
+			maybeBind2(\lv, rv -> 
+				switch (lv) {
+					IntVal(x): {
+						switch (rv) {
+							IntVal(y): Some(IntVal(apply_bin_op(s, x, y)));
+							default: {
+								println(s + "operand is not an integer: " + val2str(rv));
+								None();
+							}
+						}
+					}
+					default: {
+						println(s + "operand is not an integer: " + val2str(lv));
+						None();
+					}
+				}
+			)(checkState(le, state), checkState(re, state));
+        }
+		UnOperation(s, ee): {
+			maybeBind(checkState(ee, state), \ev ->
+				switch (ev) {
+					IntVal(x): { Some(IntVal(apply_un_op(s, x))); }
+					default: {
+						println(s + "operand is not an integer: " + val2str(ev));
+						None();
+					}
+				}
+			);
+        }
+		Update(ae, ie, ve): {
+			maybeBind(checkState(ve, state), \vv ->
+				maybeBind2(\av, iv ->
+					switch (av) {
+						ArrVal(arr): {
+							switch (iv) {
+								IntVal(i):
+									if (i < length(arr)) { Some(ArrVal(foldi(arr, [], \j, acc, x -> concat(acc, [if (i == j) vv else x])))) } 
+                                    else {
+                                        if (i == length(arr)) { Some(ArrVal(concat(arr, [vv]))); } 
+                                        else {
+										    println("index out of bounds: " + i2s(i) + " > " + i2s(length(arr)));
+										    None();
+									    }
+                                    }
+								default: {
+									println("array index is not an integer: " + val2str(iv));
+									None();
+								}
+							}
+						}
+						default: {
+							println("array value is not an array: " + val2str(av));
+							None();
+						}
+					}
+				)
+				(checkState(ae, state), checkState(ie, state))
+			);
+        }
+		Apply(ae, ie): {
+			maybeBind2(\av, iv ->
+				switch (av) {
+					ArrVal(arr): {
+						switch (iv) {
+							IntVal(i):
+								if (i < length(arr)) { Some(arr[i]); } 
+                                else { None(); }
+							default: {
+								println("array index is not an integer: " + val2str(iv));
+								None();
+							}
+						}
+					}
+					default: {
+						println("array value is not an array: " + val2str(av));
+						None();
+					}
+				}
+			)(checkState(ae, state), checkState(ie, state));
+        }
+		Var(n): {
+			r = lookupTree(state.vars, n);
+			if (r == None()) {
+				println("variable " + n + " has no value");
+			}
+			r;
+		}
+		IntConst(val): Some(IntVal(val));
+	}
+}
+
+checkStateCondition(op : string, e1 : Expression, e2 : Expression, state : State) -> Maybe<bool> {
+	cond_op = \x, y -> {
+		if (op == "==") x == y else
+		if (op == "!=") x != y else
+		if (op == "<=") x <= y else
+		if (op == ">=") x >= y else
+		if (op == "<") x < y else
+		if (op == ">") x > y else
+		false;
+	}
+	maybeBind2(\e1v, e2v ->
+		switch (e1v) {
+			IntVal(i1):
+				switch (e2v) {
+					IntVal(i2): Some(cond_op(i1, i2));
+					default: {
+						println(op + "operand is not an integer: " + val2str(e2v));
+						None();
+					}
+				}
+			default: {
+				println(op + "operand is not an integer: " + val2str(e1v));
+				None();
+			}
+		}
+	)(checkState(e1, state), checkState(e2, state))
+}
+
+main() {
+    println("TEST 1:");
+	s_1 = getFileContent("sandbox/mtk/test_1.txt");
+    
+    p_1 = str2prog(s_1);
+    switch(prog2vprog(p_1)){
+        Some(pv_1): {
+            println("\nPROGRAMM 1 VIEW:");
+            pvs_1 = vprog2str(pv_1);
+            println(pvs_1);
+            println("\nPROGRAMM 1:");
+            println(str2vprog(pvs_1));
+            println("\nPROGRAMM 1 RESULT:");
+            run(pv_1, State(makeTree()));
+        }
+        None(): println("ERROR");
+    }
+
+    println("\nTEST 2:");
+	s_2 = getFileContent("sandbox/mtk/test_2.txt");
+    
+    p_2 = str2prog(s_2);
+    switch(prog2vprog(p_2)){
+        Some(pv_2): {
+            println("\nPROGRAMM 2 VIEW:");
+            pvs_2 = vprog2str(pv_2);
+            println(pvs_2);
+            println("\nPROGRAMM 2:");
+            println(str2vprog(pvs_2));
+            println("\nPROGRAMM 2 RESULT:");
+            run(pv_2, State(makeTree()));
+        }
+        None(): println("ERROR");
+    }
+    
+    quit(0);
+}

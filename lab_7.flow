@@ -31,7 +31,7 @@ str2expr(str: string) -> Expr {
 }
 
 expr2str(expr: Expr) -> string {
-    switch(expr) {
+    switch (expr) {
         IntConst(c): i2s(c);
         Mul(l, r): "("  + expr2str(l) + "*" + expr2str(r) + ")";
         Add(l, r): "("  + expr2str(l) + "+" + expr2str(r) + ")";
@@ -81,7 +81,7 @@ maybeOp(f: (?, ??) -> ???, arg1: Maybe<?>, arg2: Maybe<??>) -> Maybe<???> {
 }
 
 Calc(expr: Expr, value: [Pair<string, int>]) -> Maybe<Rational> {
-    switch(expr) {
+    switch (expr) {
         IntConst(c): Some(int2rat(c));
         Mul(l, r): maybeOp(MulRat, Calc(l, value), Calc(r, value));
         Add(l, r): maybeOp(AddRat, Calc(l, value), Calc(r, value));
@@ -106,10 +106,23 @@ main() {
     expr = Add(Mul(Mul(Var(x), Var(x)), Var(a)), Neg(Add(Var(x), IntConst(42))));
 
     expr_str = expr2str(expr);
-    println(expr_str);
+    println("Test 1:\nExpression: " + expr_str);
 
-    result = Calc(expr, value);
-    println(result);
+    switch (Calc(expr, value)) {
+		Some(result): println("Result: " + rat2str(result));
+		None(): println("NONE");
+	}
+
+    println("");
+    value_1 = [Pair("a", 2), Pair("b", 3)];
+    expr_str_1 = "((32/(10*a))-((b*((7-(a*b))/6))/((b+b)/(9-(6/a)))))";
+    println("Test 2:\nExpression: " + expr_str_1);
+	expr_1 = str2expr(expr_str_1);
+
+	switch (Calc(expr_1, value_1)) {
+		Some(result_1): println("Result: " + rat2str(result_1));
+		None(): println("NONE");
+	}
 
      quit(0);
 }
